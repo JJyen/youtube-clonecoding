@@ -9,6 +9,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { useClerk } from "@clerk/nextjs";
+import { useAuth } from "@clerk/clerk-react";
 
 const items = [
   {
@@ -30,6 +32,9 @@ const items = [
 ];
 
 export const MainSection = () => {
+  const clerk = useClerk();
+  const { isSignedIn } = useAuth();
+
   return (
     <SidebarGroup>
       <SidebarGroupContent>
@@ -40,7 +45,12 @@ export const MainSection = () => {
                 tooltip={item.title}
                 asChild
                 isActive={false} // TODO: 현재 경로명 확인할 수 있도록 수정
-                onClick={() => {}} // TODO: 클릭이벤트 추가
+                onClick={(e) => {
+                  if (!isSignedIn && item.auth) {
+                    e.preventDefault();
+                    return clerk.openSignIn();
+                  }
+                }}
               >
                 <Link href={item.url} className="flex items-center gap-4">
                   <item.icon />
